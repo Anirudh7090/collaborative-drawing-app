@@ -1,0 +1,538 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Authentication Styles */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: 700;
+}
+
+.tab-buttons {
+  display: flex;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.tab-btn.active {
+  background: white;
+  color: #667eea;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auth-forms {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-form h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e1e5e9;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-weight: 400;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.8rem;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Drawing Canvas Styles */
+.header {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header h1 {
+  color: #333;
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.user-info span {
+  color: #666;
+  font-weight: 500;
+}
+
+.room-info {
+  background: #667eea;
+  color: white !important;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+/* Center canvas and toolbar in large area */
+.drawing-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0 3rem 0;
+  min-height: 80vh;
+}
+
+/* Main big white card with shadow and rounded corners */
+.drawing-canvas-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 26px 0 rgba(100,100,150,0.07);
+  padding: 2.2rem 2.2rem 2.2rem 2.2rem;
+  margin: auto;
+  position: relative;
+  width: auto;
+}
+
+/* Toolbar always above the drawing area, max width */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+/* Layering: Canvas wrapper for stacking canvases and overlay items in center */
+.canvas-wrapper {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawing-canvas, .preview-canvas {
+  display: block;
+  border-radius: 14px;
+  margin: 0 auto;
+  width: 800px;
+  height: 600px;
+  background: white;
+  border: 2.5px solid #e2e6fa;
+  box-shadow: 0 2px 10px 0 rgba(102,126,234,.08);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.preview-canvas {
+  pointer-events: none;
+  z-index: 1;
+}
+
+.remote-cursor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Text overlay */
+form[style*="position: absolute"] input[type="text"] {
+  font-size: 17px;
+  border: 1.7px solid #667eea;
+  border-radius: 5px;
+  padding: 5px 8px;
+  min-width: 130px;
+  background: #f8fafd;
+}
+form[style*="position: absolute"] {
+  box-shadow: 0 0 6px 1px #667eea22;
+}
+
+/* Responsive Design (keep your breakpoints for auth styles) */
+@media (max-width: 900px) {
+  .drawing-canvas-container,
+  .canvas-wrapper {
+    width: 99vw !important;
+    max-width: 99vw;
+    padding: 2vw;
+  }
+  .drawing-canvas, .preview-canvas {
+    width: 95vw !important;
+    max-width: 95vw;
+    height: 65vw !important;
+    min-height: 200px;
+  }
+  .canvas-wrapper {
+    height: 65vw !important;
+    min-height: 200px;
+  }
+}
+@media (max-width: 600px) {
+  .drawing-canvas, .preview-canvas,
+  .canvas-wrapper, .drawing-canvas-container {
+    width: 99vw !important;
+    height: 40vw !important;
+    min-width: 180px;
+    min-height: 110px;
+  }
+}
+
+/* Keep all other window styles for authentication as you had! */
+/* Room Management Styles */
+
+.room-selection {
+  max-width: 700px;
+  margin: 40px auto;
+  background: rgba(255,255,255,0.88);
+  border-radius: 24px;
+  box-shadow: 0 12px 32px rgba(92,32,165,0.09);
+  padding: 36px 38px 42px 38px;
+  border: 1px solid #e2e6fa;
+  position: relative;
+}
+
+.room-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.room-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #5433ff;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.room-header .user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.room-header .logout-btn {
+  margin-top: 6px;
+}
+
+.room-content {
+  margin-top: 22px;
+}
+
+.room-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.room-tabs .tab-btn {
+  background: #e9e9fd;
+  color: #5433ff;
+  border-radius: 10px 10px 0 0;
+  border: none;
+  padding: 13px 32px;
+  font-size: 1.16rem;
+  font-weight: 700;
+  margin-right: 2px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.room-tabs .tab-btn.active {
+  background: #667eea;
+  color: #fff;
+  box-shadow: 0 3px 11px rgba(76, 76, 188, 0.14);
+}
+
+.room-tab-content {
+  background: rgba(255,255,255,0.97);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 6px 24px rgba(76,76,188,0.08);
+  padding: 32px 22px 25px 22px;
+}
+
+.my-rooms .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.my-rooms h2,
+.create-room h2,
+.join-room h2 {
+  font-size: 1.38rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #764ba2;
+  letter-spacing: 1px;
+}
+
+.refresh-btn {
+  background: #fff;
+  color: #764ba2;
+  border: 1.5px solid #764ba2;
+  border-radius: 8px;
+  padding: 6px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.17s, box-shadow 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #764ba2;
+  color: #fff;
+  box-shadow: 0 2px 10px #764ba255;
+}
+
+.rooms-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.room-card {
+  background: linear-gradient(90deg,#b3aef7 6%, #e5e4fa 94%);
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(102,126,234,0.08);
+  padding: 18px 28px 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid #e2e6fa;
+  transition: box-shadow 0.24s;
+}
+
+.room-card:hover {
+  box-shadow: 0 8px 22px #764ba241;
+}
+
+.room-info h3 {
+  font-size: 1.3rem;
+  color: #4431db;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.room-info p {
+  font-size: 0.95rem;
+  color: #383865;
+  margin: 2px 0;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  margin-left: 4px;
+  text-transform: uppercase;
+  background: #f6e1e1;
+  color: #e43f3f;
+}
+
+.role-badge.owner {
+  background: #d6f4e6;
+  color: #22b573;
+}
+
+.role-badge.member {
+  background: #e7eeff;
+  color: #3e54e0;
+}
+
+.enter-room-btn {
+  background: linear-gradient(92deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 1.07rem;
+  font-weight: 630;
+  box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.enter-room-btn:hover {
+  background: linear-gradient(92deg, #764ba2 0%, #667eea 100%);
+  transform: scale(1.03);
+}
+
+.room-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.room-form input,
+.room-form textarea {
+  font-size: 1.11rem;
+  border-radius: 8px;
+  border: 1.5px solid #d7def7;
+  padding: 12px 14px;
+  margin-bottom: 9px;
+  background: #f3f6fc;
+  color: #24245b;
+  margin-right: 8px;
+  transition: border-color 0.16s;
+}
+
+.room-form input:focus,
+.room-form textarea:focus {
+  border-color: #764ba2;
+  outline: none;
+}
+
+.room-form button {
+  background: linear-gradient(92deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 7px;
+  font-size: 1.07rem;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 2px 10px #764ba221;
+  transition: background 0.17s, transform 0.15s;
+}
+
+.room-form button:hover {
+  background: linear-gradient(95deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+}
