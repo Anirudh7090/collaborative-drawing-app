@@ -10,23 +10,26 @@ from app.routers.rooms import router as rooms_router
 
 app = FastAPI()
 
-# Get CORS origins from environment variable
+# Get frontend URL from environment
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-# Allow both local and production frontends
+# Configure CORS - allow both local and production
 origins = [
-    "http://localhost:3000",  # Local development
-    FRONTEND_URL,  # Production frontend from environment variable
+    "http://localhost:3000",
+    "http://localhost:3001",
+    FRONTEND_URL,
 ]
 
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
+# Include routers
 app.include_router(home_router)
 app.include_router(auth_router)
 app.include_router(websocket_router)
