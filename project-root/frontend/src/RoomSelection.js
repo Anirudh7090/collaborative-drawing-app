@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// Use environment variables for API URLs
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
 function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const [activeTab, setActiveTab] = useState('myRooms');
   const [rooms, setRooms] = useState([]);
@@ -14,7 +17,7 @@ function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const fetchMyRooms = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/rooms/my', {
+      const response = await fetch(`${API_URL}/rooms/my`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
@@ -37,7 +40,7 @@ function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const handleCreateRoom = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/rooms/create', {
+      const response = await fetch(`${API_URL}/rooms/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(createData)
@@ -59,7 +62,7 @@ function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const handleJoinRoom = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/rooms/join', {
+      const response = await fetch(`${API_URL}/rooms/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ room_id: joinData.roomId })
@@ -87,7 +90,7 @@ function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const handleDeleteRoom = async (roomId) => {
     if (!window.confirm('Are you sure you want to delete this room? This cannot be undone.')) return;
     try {
-      const response = await fetch(`http://localhost:8000/rooms/${roomId}`, {
+      const response = await fetch(`${API_URL}/rooms/${roomId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -107,7 +110,7 @@ function RoomSelection({ token, currentUser, onRoomSelected, onLogout }) {
   const handleRemoveMember = async (roomId, userId) => {
     if (!window.confirm('Remove this member from the room?')) return;
     try {
-      const response = await fetch('http://localhost:8000/rooms/remove_member', {
+      const response = await fetch(`${API_URL}/rooms/remove_member`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ room_id: roomId, user_id: userId })

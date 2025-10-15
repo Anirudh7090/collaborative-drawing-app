@@ -1,5 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 
+// Use environment variables for API URLs
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const WS_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:8000';
+
 const COLORS = ['#e53e3e', '#3182ce', '#38a169', '#f6ad55', '#2d3748', '#555'];
 const THICKNESS = [2, 4, 6, 8, 12];
 const TOOLS = [
@@ -24,6 +28,7 @@ const CURSORS = {
 const CANVAS_W = 1200;
 const CANVAS_H = 700;
 const COLLISION_RADIUS = 24; // px collision detection
+
 
 function DrawingCanvas({ currentUser, roomId, token }) {
   const canvasRef = useRef(null);
@@ -66,7 +71,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
   useEffect(() => {
     async function loadCanvasState() {
       try {
-        const resp = await fetch(`http://localhost:8000/canvas/load/${roomId}`, {
+        const resp = await fetch(`${API_URL}/canvas/load/${roomId}`, {
           headers: { ...authHeaders }
         });
         if (resp.ok) {
@@ -89,7 +94,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
   const fetchSnapshots = async () => {
     setLoadingSnapshots(true);
     try {
-      const result = await fetch(`http://localhost:8000/canvas/snapshots/${roomId}`, {
+      const result = await fetch(`${API_URL}/canvas/snapshots/${roomId}`, {
         headers: { ...authHeaders }
       });
       if (result.ok) {
@@ -106,7 +111,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
 
   const handleSaveSnapshot = async () => {
     try {
-      const r = await fetch("http://localhost:8000/canvas/snapshot", {
+      const r = await fetch(`${API_URL}/canvas/snapshot`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
@@ -127,7 +132,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
 
   const handleRestoreSnapshot = async (snapshot_id) => {
     try {
-      const r = await fetch(`http://localhost:8000/canvas/snapshot/${snapshot_id}`, {
+      const r = await fetch(`${API_URL}/canvas/snapshot/${snapshot_id}`, {
         headers: { ...authHeaders }
       });
       if (r.ok) {
@@ -146,7 +151,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
 
   const handleSaveCanvas = async () => {
     try {
-      await fetch("http://localhost:8000/canvas/save", {
+      await fetch(`${API_URL}/canvas/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
@@ -165,15 +170,13 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     if (!window.confirm('Are you sure you want to clear the canvas for everyone?')) return;
     setClearing(true);
     try {
-      const response = await fetch(`http://localhost:8000/canvas/clear/${roomId}`, {
+      const response = await fetch(`${API_URL}/canvas/clear/${roomId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
         alert('Canvas cleared!');
-        // Reload the empty canvas
         setClearing(false);
-        // Optionally reload canvas state:
         const data = await response.json();
         setLocalStrokes([]);
         clearAndRedraw([]);
@@ -189,7 +192,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
   };
 
   useEffect(() => {
-    wsRef.current = new window.WebSocket(`ws://localhost:8000/ws/${roomId}?token=${token}`);
+    wsRef.current = new window.WebSocket(`${WS_URL}/ws/${roomId}?token=${token}`);
     const ws = wsRef.current;
     ws.onopen = () => {};
     ws.onmessage = (event) => {
@@ -277,7 +280,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
     sendWS({ type: 'undo' });
-    setLocalStrokes([]); // Clear strokes locally
+    setLocalStrokes([]);
   };
 
   const start = e => {
@@ -318,7 +321,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     // --- COLLISION CHECK ---
     if (drawing && isColliding(x, y)) {
       setCollision(true);
-      return; // Prevent drawing at this point!
+      return;
     } else {
       setCollision(false);
     }

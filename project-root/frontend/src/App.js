@@ -5,6 +5,9 @@ import Register from './Register';
 import DrawingCanvas from './DrawingCanvas';
 import RoomSelection from './RoomSelection';
 
+// Use environment variables for API URLs
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -28,7 +31,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/register', {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registerData),
@@ -48,7 +51,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8000/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: loginData.email, password: loginData.password }),
@@ -57,7 +60,7 @@ function App() {
         const result = await response.json();
 
         // Validate and set user state
-        const meResponse = await fetch('http://localhost:8000/me', {
+        const meResponse = await fetch(`${API_URL}/me`, {
           headers: { Authorization: `Bearer ${result.access_token}` }
         });
         if (meResponse.ok) {
