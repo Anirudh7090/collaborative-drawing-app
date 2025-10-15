@@ -10,16 +10,17 @@ from app.routers.rooms import router as rooms_router
 
 app = FastAPI()
 
-# CORS - Allow frontend
+# CORS - MUST BE FIRST MIDDLEWARE!
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",                                    # Local development
-        "https://collaborative-drawing-app-1.onrender.com"          # Production frontend
+        "http://localhost:3000",
+        "https://collaborative-drawing-app-1.onrender.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]  # <-- ADD THIS!
 )
 
 app.include_router(home_router)
