@@ -1,7 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
 import os
 
 from app.routers.home import router as home_router
@@ -12,29 +10,22 @@ from app.routers.rooms import router as rooms_router
 
 app = FastAPI()
 
-# Custom CORS Middleware that FORCES headers on every response
-class ForceCORSMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.method == "OPTIONS":
-            # Handle preflight
-            return JSONResponse(
-                content={},
-                headers={
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "*",
-                    "Access-Control-Allow-Headers": "*",
-                    "Access-Control-Max-Age": "86400",
-                }
-            )
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        return response
+# Get CORS origins from environment variable
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-# Add custom CORS middleware FIRST
-app.add_middleware(ForceCORSMiddleware)
+# Allow both local and production frontends
+origins = [
+    "http://localhost:3000",  # Local development
+    FRONTEND_URL,  # Production frontend from environment variable
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(home_router)
 app.include_router(auth_router)
