@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 pip install --upgrade pip
-cd project-root/backend
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
+cd backend
 python app/init_db.py
