@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from .db import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -11,9 +12,8 @@ class User(Base):
     full_name = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
 
-    # New relationships for Room Management
+    # Relationships
     owned_rooms = relationship("Room", back_populates="owner")              # Rooms this user owns
     room_memberships = relationship("UserRoom", back_populates="user")      # Every room/user membership
-
-    # Optionally: list of snapshots created by this user
-    snapshots = relationship("CanvasSnapshot", back_populates="creator")
+    snapshots = relationship("CanvasSnapshot", back_populates="creator")    # List of snapshots created by this user
+    chat_messages = relationship("ChatMessage", back_populates="user")      # NEW: Chat messages sent by this user

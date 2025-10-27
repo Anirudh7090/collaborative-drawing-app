@@ -4,27 +4,34 @@ import os
 from dotenv import load_dotenv
 import enum
 
+
 # Load environment variables from .env file
 load_dotenv()
+
 
 # Get database URL from environment variable or fallback
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://postgres:Anirudh@localhost:5432/canvus"
 )
 
+
 # Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL, echo=True)
+
 
 # Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 # Base class
 Base = declarative_base()
+
 
 # ---- ENUM FOR USER ROLES ----
 class UserRole(enum.Enum):
     OWNER = "owner"      # Room creator, full permissions
     MEMBER = "member"    # Regular room participant
+
 
 # ---- MODEL FOR CANVAS SNAPSHOTS (VERSIONING) ----
 class CanvasSnapshot(Base):
@@ -38,6 +45,24 @@ class CanvasSnapshot(Base):
     # Relationships
     room = relationship("Room", back_populates="snapshots")
     creator = relationship("User")
+
+
+# ==================== NEW: CHAT MESSAGE MODEL ====================
+class ChatMessage(Base):
+    """Store chat messages for each room"""
+    __tablename__ = "chat_messages"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    room_id = Column(String, ForeignKey("rooms.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    room = relationship("Room", back_populates="chat_messages")
+    user = relationship("User", back_populates="chat_messages")
+# ==================================================================
+
 
 # ---- MODEL FOR ROOMS ----
 class Room(Base):
@@ -54,6 +79,8 @@ class Room(Base):
     owner = relationship("User", back_populates="owned_rooms")
     members = relationship("UserRoom", back_populates="room")
     snapshots = relationship("CanvasSnapshot", back_populates="room")
+    chat_messages = relationship("ChatMessage", back_populates="room")  # NEW: Chat relationship
+
 
 # ---- MODEL FOR USER-ROOM MEMBERSHIP ----
 class UserRoom(Base):
@@ -74,8 +101,8 @@ class UserRoom(Base):
         {'extend_existing': True}
     )
 
-# ------------------------------------------------------
 
+# ------------------------------------------------------
 # Example usage in migration/init_db:
 # from models.db import engine, Base
 # Base.metadata.create_all(bind=engine)

@@ -1,4 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
+import ChatBox from './ChatBox';
+import VideoCall from './VideoCall';
+import LiveCaptions from './LiveCaptions';
 
 // Use environment variables for API URLs
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
@@ -27,8 +30,7 @@ const CURSORS = {
 };
 const CANVAS_W = 1200;
 const CANVAS_H = 700;
-const COLLISION_RADIUS = 24; // px collision detection
-
+const COLLISION_RADIUS = 24;
 
 function DrawingCanvas({ currentUser, roomId, token }) {
   const canvasRef = useRef(null);
@@ -48,12 +50,19 @@ function DrawingCanvas({ currentUser, roomId, token }) {
   const [loadingSnapshots, setLoadingSnapshots] = useState(false);
   const [clearing, setClearing] = useState(false);
 
+  // Enhanced state for new features
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [isVideoMinimized, setIsVideoMinimized] = useState(false);
+  const [captionsEnabled, setCaptionsEnabled] = useState(false);
+  const [isMicEnabled, setIsMicEnabled] = useState(false);
+  const [isCaptionsMinimized, setIsCaptionsMinimized] = useState(false);
+  const [incomingCall, setIncomingCall] = useState(null);
+
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
-  // Owner check helper
   const isOwner = currentUser?.role === 'OWNER' || (currentUser && currentUser.user_id && currentUser.user_id === currentUser.owner_id);
 
-  // Collision detection
   function isColliding(x, y) {
     return Object.values(remoteCursors).some(
       c => c.x !== null && c.y !== null &&
@@ -165,7 +174,6 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     }
   };
 
-  // ---- OWNER-ONLY CLEAR CANVAS ----
   const handleClearCanvas = async () => {
     if (!window.confirm('Are you sure you want to clear the canvas for everyone?')) return;
     setClearing(true);
@@ -191,12 +199,33 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     }
   };
 
+  const handleStartVideoCall = () => {
+    setShowVideoCall(true);
+    setIsVideoMinimized(false);
+    sendWS({
+      type: 'video_call_started',
+      userId: currentUser?.email || 'anonymous',
+      userName: currentUser?.fullName || currentUser?.email || 'Anonymous'
+    });
+  };
+
+  const handleJoinCall = () => {
+    setShowVideoCall(true);
+    setIsVideoMinimized(false);
+    setIncomingCall(null);
+  };
+
+  const handleRejectCall = () => {
+    setIncomingCall(null);
+  };
+
   useEffect(() => {
     wsRef.current = new window.WebSocket(`${WS_URL}/ws/${roomId}?token=${token}`);
     const ws = wsRef.current;
     ws.onopen = () => {};
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+      
       if (
         ['draw', 'brush', 'eraser', 'rectangle', 'ellipse', 'text'].includes(msg.type)
       ) {
@@ -219,10 +248,19 @@ function DrawingCanvas({ currentUser, roomId, token }) {
           }
         }));
       }
+      
+      if (msg.type === 'video_call_started' && msg.userId !== (currentUser?.email || 'anonymous')) {
+        if (!showVideoCall) {
+          setIncomingCall({
+            from: msg.userName,
+            userId: msg.userId
+          });
+        }
+      }
     };
     ws.onclose = () => {};
     return () => ws.close();
-  }, [roomId, currentUser]);
+  }, [roomId, currentUser, showVideoCall]);
 
   const sendWS = (obj) => {
     if (wsRef.current && wsRef.current.readyState === 1) {
@@ -318,7 +356,6 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     const { x, y } = getCanvasCoords(e);
     setMyCursor({ x, y, tool });
 
-    // --- COLLISION CHECK ---
     if (drawing && isColliding(x, y)) {
       setCollision(true);
       return;
@@ -397,7 +434,6 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     }
   };
 
-  // --- Snapshot UI ---
   const renderSnapshots = () => (
     <div style={{
       width: "100%",
@@ -456,7 +492,6 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     </div>
   );
 
-  // CLEAR CANVAS BUTTON (owner only)
   const renderOwnerButtons = () => isOwner && (
     <button
       style={{
@@ -557,7 +592,6 @@ function DrawingCanvas({ currentUser, roomId, token }) {
       ) : null
     );
 
-  // Updated: Show red cursor and tooltip if blocked
   const renderMyCursor = () => (
     myCursor.x !== null && myCursor.y !== null && (
       <div
@@ -626,11 +660,56 @@ function DrawingCanvas({ currentUser, roomId, token }) {
     </div>
   );
 
+  const renderCallNotification = () => incomingCall && (
+    <div style={{
+      position: 'fixed',
+      top: 20,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: '#2d3748',
+      color: '#fff',
+      padding: '16px 24px',
+      borderRadius: 12,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+      zIndex: 1001,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16,
+      animation: 'slideDown 0.3s ease'
+    }}>
+      <div style={{ fontSize: 24 }}>📞</div>
+      <div>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>{incomingCall.from} started a video call</div>
+        <div style={{ fontSize: 13, color: '#cbd5e0' }}>Join the call to chat with everyone!</div>
+      </div>
+      <button onClick={handleJoinCall} style={{
+        padding: '8px 20px',
+        borderRadius: 8,
+        border: 'none',
+        background: '#38a169',
+        color: '#fff',
+        fontWeight: 600,
+        cursor: 'pointer'
+      }}>Join</button>
+      <button onClick={handleRejectCall} style={{
+        padding: '8px 20px',
+        borderRadius: 8,
+        border: 'none',
+        background: '#e53e3e',
+        color: '#fff',
+        fontWeight: 600,
+        cursor: 'pointer'
+      }}>Ignore</button>
+    </div>
+  );
+
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
       {renderUserInfo()}
       {renderRoomMembers()}
       {renderSnapshots()}
+      {renderCallNotification()}
+      
       <button
         style={{
           margin: "10px 0",
@@ -648,6 +727,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
         Save Canvas State
       </button>
       {renderOwnerButtons()}
+      
       <div className="canvas-toolbar">
         <span style={{ fontSize: 14 }}>Tool</span>
         <select
@@ -678,7 +758,64 @@ function DrawingCanvas({ currentUser, roomId, token }) {
             <option key={t} value={t}>{t}px</option>
           )}
         </select>
+
+        <span style={{ fontSize: 14, marginLeft: 20, fontWeight: 600 }}>Features:</span>
+        <button
+          style={{
+            marginLeft: 8,
+            padding: '6px 12px',
+            borderRadius: 8,
+            border: 'none',
+            background: showVideoCall ? '#e53e3e' : '#38a169',
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+          onClick={() => showVideoCall ? setShowVideoCall(false) : handleStartVideoCall()}
+        >
+          📹 {showVideoCall ? 'End' : 'Start'} Video Call
+        </button>
+        <button
+          style={{
+            marginLeft: 8,
+            padding: '6px 12px',
+            borderRadius: 8,
+            border: 'none',
+            background: captionsEnabled ? '#e53e3e' : '#f6ad55',
+            color: captionsEnabled ? '#fff' : '#2d3748',
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer'
+          }}
+          onClick={() => {
+            setCaptionsEnabled(!captionsEnabled);
+            if (captionsEnabled) setIsMicEnabled(false);
+          }}
+        >
+          🎤 {captionsEnabled ? 'Disable' : 'Enable'} Captions
+        </button>
+        
+        {captionsEnabled && (
+          <button
+            style={{
+              marginLeft: 8,
+              padding: '6px 12px',
+              borderRadius: 8,
+              border: 'none',
+              background: isMicEnabled ? '#38a169' : '#718096',
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+            onClick={() => setIsMicEnabled(!isMicEnabled)}
+          >
+            {isMicEnabled ? '🎙️ Mic On' : '🔇 Mic Off'}
+          </button>
+        )}
       </div>
+
       <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H, border: '2px solid #eee', borderRadius: 14, boxShadow: '0 8px 28px #3383f022' }}>
         <canvas
           ref={canvasRef}
@@ -694,6 +831,34 @@ function DrawingCanvas({ currentUser, roomId, token }) {
         {renderMyCursor()}
         {renderOtherCursors()}
       </div>
+
+      {showVideoCall && (
+        <VideoCall
+          roomId={roomId}
+          token={token}
+          currentUser={currentUser}
+          wsUrl={WS_URL}
+          isMinimized={isVideoMinimized}
+          onToggleMinimize={() => setIsVideoMinimized(!isVideoMinimized)}
+          onClose={() => setShowVideoCall(false)}
+        />
+      )}
+
+      <LiveCaptions
+        websocket={wsRef.current}
+        isEnabled={captionsEnabled}
+        isMicEnabled={isMicEnabled}
+        currentUser={currentUser}
+        isMinimized={isCaptionsMinimized}
+        onToggle={() => setIsCaptionsMinimized(!isCaptionsMinimized)}
+      />
+
+      <ChatBox
+        websocket={wsRef.current}
+        currentUser={currentUser}
+        isMinimized={isChatMinimized}
+        onToggle={() => setIsChatMinimized(!isChatMinimized)}
+      />
     </div>
   );
 }
