@@ -6,7 +6,7 @@ function ChatBox({ websocket, currentUser, isMinimized, onToggle }) {
   const [inputMessage, setInputMessage] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
