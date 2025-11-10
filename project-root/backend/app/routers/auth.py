@@ -14,7 +14,7 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT settings
-SECRET_KEY = "YOUR_SUPER_SECRET_KEY"  # Change this!
+SECRET_KEY = "Anirudh123" 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
