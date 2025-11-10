@@ -9,10 +9,10 @@ from app.routers.webrtc import router as webrtc_router  # NEW: Import WebRTC rou
 
 app = FastAPI()
 
-# CORS - Allow all origins temporarily for testing
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow ALL origins
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,7 +23,7 @@ app.include_router(auth_router)
 app.include_router(websocket_router)
 app.include_router(drawings_router)
 app.include_router(rooms_router)
-app.include_router(webrtc_router)  # NEW: Register WebRTC router
+app.include_router(webrtc_router)   
 
 @app.get("/")
 async def root():
