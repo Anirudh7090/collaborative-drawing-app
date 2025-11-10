@@ -5,7 +5,7 @@ import Register from './Register';
 import DrawingCanvas from './DrawingCanvas';
 import RoomSelection from './RoomSelection';
 
-// Use environment variables for API URLs
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
   // Room selection state
   const [selectedRoom, setSelectedRoom] = useState(null);
 
-  // Only clear tokens on first mount
+  
   useEffect(() => {
     localStorage.removeItem('token');
     setToken(null);
