@@ -3,7 +3,7 @@ import ChatBox from './ChatBox';
 import VideoCall from './VideoCall';
 import LiveCaptions from './LiveCaptions';
 
-// Use environment variables for API URLs
+
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
 const WS_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:8000';
 
@@ -50,7 +50,7 @@ function DrawingCanvas({ currentUser, roomId, token }) {
   const [loadingSnapshots, setLoadingSnapshots] = useState(false);
   const [clearing, setClearing] = useState(false);
 
-  // Enhanced state for new features
+  
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [isVideoMinimized, setIsVideoMinimized] = useState(false);
