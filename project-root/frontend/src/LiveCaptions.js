@@ -9,7 +9,7 @@ function LiveCaptions({ websocket, isEnabled, isMicEnabled, currentUser, isMinim
   const recognitionRef = useRef(null);
   const captionsEndRef = useRef(null);
 
-  // Auto-scroll to newest caption
+  
   useEffect(() => {
     if (captionsEndRef.current && !isMinimized) {
       captionsEndRef.current.scrollIntoView({ behavior: 'smooth' });
