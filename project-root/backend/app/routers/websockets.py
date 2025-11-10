@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 router = APIRouter()
 
-# JWT settings (same as in auth.py)
-SECRET_KEY = "YOUR_SUPER_SECRET_KEY"  # Must match auth.py
+# JWT settings 
+SECRET_KEY = "Anirudh123"  
 ALGORITHM = "HS256"
 
 class ConnectionManager:
