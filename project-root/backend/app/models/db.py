@@ -96,7 +96,7 @@ class UserRoom(Base):
     user = relationship("User", back_populates="room_memberships")
     room = relationship("Room", back_populates="members")
 
-    # Ensure unique user-room pairs
+    
     __table_args__ = (
         {'extend_existing': True}
     )
