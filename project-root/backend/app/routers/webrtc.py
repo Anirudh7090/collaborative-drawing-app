@@ -6,7 +6,7 @@ from jose import JWTError, jwt
 router = APIRouter()
 
 # JWT settings (must match auth.py)
-SECRET_KEY = "YOUR_SUPER_SECRET_KEY"
+SECRET_KEY = "Anirudh123"
 ALGORITHM = "HS256"
 
 
